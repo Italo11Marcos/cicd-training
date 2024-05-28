@@ -22,12 +22,11 @@ jobs:
       run: |
         echo "${{ secrets.GCP_KEY }}" > credentials.json
         gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-        gcloud auth configure-docker -q
+        gcloud auth configure-docker us-east1-docker.pkg.dev
 
     - name: Build and Push Docker Image
       env:
-        REGISTRY: gcr.io/ornate-bond-422513-s9
-        IMAGE: cicd-repo/pipe_agrofit:prod
-        TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}
+        REGISTRY: us-east1-docker.pkg.dev/ornate-bond-422513-s9
+        IMAGE: cicd-repo/pipe_agrofit:latest
       run: |
         docker push $REGISTRY/$IMAGE
