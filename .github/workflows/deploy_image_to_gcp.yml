@@ -1,32 +1,39 @@
-name: Deploy image to GCP
-
-on:
+name: Build image and push to Artifact Registry of GCP
+on: 
   push:
-    branches:
-      - main
-
+    branches: 
+      - master
+ 
 jobs:
-  build:
+  build-push-artifact:
+    name : Build and push Artifact Registry
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v2
 
-    - name: Authenticate to Google Cloud
-      uses: google-github-actions/auth@v1
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v1'
       with:
-        credentials_json: ${{ secrets.GCP_KEY }}
+        credentials_json: '${{ secrets.GCP_KEY }}'
 
-    - name: Debug Authentication
-      run: |
-        echo "${{ secrets.GCP_KEY }}" > credentials.json
-        gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-        gcloud auth configure-docker us-east1-docker.pkg.dev
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
 
-    - name: Build and Push Docker Image
+    - name: 'Use gcloud CLI'
+      run: 'gcloud info'
+
+    - name: build Docker Image
+      run: docker build -t pipe_agrofit:latest .
+    
+    - name: Configure Docker Client of Gcloud
+      run:  |-
+        gcloud auth configure-docker us-east1-docker.pkg.dev --quiet
+    
+    - name: Push Docker Image to Artifact Registry 
       env:
-        REGISTRY: us-east1-docker.pkg.dev/ornate-bond-422513-s9
-        IMAGE: cicd-repo/pipe_agrofit:latest
-      run: |
-        docker push $REGISTRY/$IMAGE
+        GIT_TAG: v0.1.0
+      run:  |-
+        docker tag pipe_agrofit:latest us-east1-docker.pkg.dev/ornate-bond-422513-s9/images/pipe_agrofit:latest
+        docker push us-east1-docker.pkg.dev/ornate-bond-422513-s9/images/pipe_agrofit:latest
