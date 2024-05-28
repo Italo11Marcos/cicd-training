@@ -1,0 +1,33 @@
+name: Deploy image to GCP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCP_KEY }}
+
+    - name: Debug Authentication
+      run: |
+        echo "${{ secrets.GCP_KEY }}" > credentials.json
+        gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+        gcloud auth configure-docker -q
+
+    - name: Build and Push Docker Image
+      env:
+        REGISTRY: gcr.io/ornate-bond-422513-s9
+        IMAGE: cicd-repo/pipe_agrofit:prod
+        TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}
+      run: |
+        docker push $REGISTRY/$IMAGE
