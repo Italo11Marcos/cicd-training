@@ -35,5 +35,5 @@ jobs:
       env:
         GIT_TAG: v0.1.0
       run:  |-
-        docker tag pipe_agrofit:latest us-east1-docker.pkg.dev/ornate-bond-422513-s9/images/pipe_agrofit:latest
-        docker push us-east1-docker.pkg.dev/ornate-bond-422513-s9/images/pipe_agrofit:latest
+        docker tag pipe_agrofit:latest us-east1-docker.pkg.dev/ornate-bond-422513-s9/cicd-repo/pipe_agrofit:latest
+        docker push us-east1-docker.pkg.dev/ornate-bond-422513-s9/cicd-repo/pipe_agrofit:latest
