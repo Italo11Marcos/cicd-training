@@ -66,4 +66,4 @@ if __name__ == "__main__":
                         storage_options={"token": credentials}, engine="fastparquet", index=False)
     logger.info(f"Salvo na TRUSTED {trusted_filename} com sucesso")
 
-    logger.info("Finalizado")
+    logger.info("Finished")
