@@ -2,7 +2,7 @@ name: Build image and push to Artifact Registry of GCP
 on: 
   push:
     branches: 
-      - master
+      - main
  
 jobs:
   build-push-artifact:
