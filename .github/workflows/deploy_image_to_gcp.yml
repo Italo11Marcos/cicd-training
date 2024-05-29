@@ -1,39 +1,38 @@
-name: Build image and push to Artifact Registry of GCP
-on: 
+name: GCP
+
+on:
   push:
-    branches: 
-      - main
- 
+    branches: [main]
+
 jobs:
-  build-push-artifact:
-    name : Build and push Artifact Registry
+  deploy:
+    name: Deploy to Cloud Run
     runs-on: ubuntu-latest
-
+    env:
+      IMAGE_NAME: us-east1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cicd-repo/app_agrofit:latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      # Git checkout
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - id: 'auth'
-      uses: 'google-github-actions/auth@v1'
-      with:
-        credentials_json: '${{ secrets.GCP_KEY }}'
+      # Login to GCP
+      - uses: google-github-actions/setup-gcloud@v0.2.0
+        with:
+          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
 
-    - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v1'
+      # gcloud configure docker
+      - name: Configure Docker
+        run: gcloud auth configure-docker us-east1-docker.pkg.dev --quiet
 
-    - name: 'Use gcloud CLI'
-      run: 'gcloud info'
+      # Build Docker image
+      - name: Build Docker image
+        run: docker build -t $IMAGE_NAME .
 
-    - name: build Docker Image
-      run: docker build -t pipe_agrofit:latest .
-    
-    - name: Configure Docker Client of Gcloud
-      run:  |-
-        gcloud auth configure-docker us-east1-docker.pkg.dev --quiet
-    
-    - name: Push Docker Image to Artifact Registry 
-      env:
-        GIT_TAG: v0.1.0
-      run:  |-
-        docker tag pipe_agrofit:latest us-east1-docker.pkg.dev/ornate-bond-422513-s9/cicd-repo/pipe_agrofit:latest
-        docker push us-east1-docker.pkg.dev/ornate-bond-422513-s9/cicd-repo/pipe_agrofit:latest
+      # Tag Docker image with GCR URI
+      - name: Tag Docker image
+        run: docker tag $IMAGE_NAME $IMAGE_NAME
+
+      # Push Docker image to Container Registry
+      - name: Push Docker image
+        run: docker push $IMAGE_NAME
