@@ -9,7 +9,7 @@ jobs:
     name: Deploy to Cloud Run
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: us-east1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cicd-repo/app_agrofit:latest
+      IMAGE_NAME: us-east1-docker.pkg.dev/ornate-bond-422513-s9/cicd-repo:latest
     steps:
       # Git checkout
       - name: Checkout
